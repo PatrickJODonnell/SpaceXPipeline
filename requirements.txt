@@ -1,0 +1,9 @@
+# requirements for pipeline. To install, use command: pip install -r requirements.txt
+aiohttp == 3.9.3
+asyncio == 3.4.3
+pandas
+flatten_json == 0.1.14
+numpy
+pyarrow
+boto3
+python-dotenv
