@@ -10,7 +10,7 @@ import pyarrow.parquet as pq
 import os
 import boto3
 from dotenv import load_dotenv
-import json
+from prefect import flow, task
 
 # Loading environmental variables
 load_dotenv()
@@ -18,6 +18,7 @@ load_dotenv()
 # Initializing flattened launch list as global for manipulaton by data processor
 flat_launch_list = [] 
 
+@task
 async def apiInteraction():
     """
     Function that fetches data from the provided API URL
@@ -37,9 +38,10 @@ async def apiInteraction():
     async with aiohttp.ClientSession() as session:
         async with session.post(base_url + route, headers={"Conetent-Type": "application/json"}, json = query) as response:
             raw_response = await response.json()
-            response = raw_response['docs']
-            return(response)
+            return_response = raw_response['docs']
+            return(return_response)
         
+@task      
 def dataExtraction(launch):
     """
     Function that pulls all data from each launch that it is passed as adds it to a launch list
@@ -48,6 +50,7 @@ def dataExtraction(launch):
     flattened_launch = flatten(launch)
     flat_launch_list.append(flattened_launch)
 
+@task
 def dataProcessing():
     """
     Function that will turn take each input of the flattened_launch_list and enter it into a pandas df.
@@ -80,7 +83,8 @@ def dataProcessing():
         split_data[year] = df[df['year'] == year]
     # Returning the dictionary of data
     return split_data
-        
+
+@task      
 async def parquetConversion(data, split_data):
     """
     Async function for converting the seperated Dataframes into seperate parquet files 
@@ -98,6 +102,7 @@ async def parquetConversion(data, split_data):
     table = pa.Table.from_pandas(split_data[data].astype(str))
     pq.write_table(table, f'./spacex-data/{data}/launch_data_{data}.parquet')
 
+@task
 async def uploadToS3(data):
     """
     Function for uploading the parquet files to AWS S3
@@ -115,46 +120,53 @@ async def uploadToS3(data):
         Body = open(f'./spacex-data/{data}/launch_data_{data}.parquet', 'rb')
     )
 
-if __name__ == "__main__":
+@flow(log_prints=True)
+async def main():
     """
-    Running if Python file is running natively 
+    Main file function
     """
     # Calling the fetchData function
     print('Beginning API calls')
     try:
-        response = asyncio.run(apiInteraction())
+        new_response = await apiInteraction()
         print('API call passed')
     except Exception as error:
-        print('API call failed')
+        print('API call failed ' + str(error))
     # Looping through the response and sending each launch to the data extractor
     print('Beginning data extraction')
     try:
-        for launch in response:
+        for launch in new_response:
             dataExtraction(launch)
         print('Data extraction passed')
     except Exception as error:
-        print('Data extraction failed: ' + error)
+        print('Data extraction failed: ' + str(error))
     # Running the dataProcessesor
     print('Beginning data processing')
     try:
         split_data = dataProcessing()
         print('Data processing passed')
     except Exception as error:
-        print('Data processing failed: ' + error)
+        print('Data processing failed: ' + str(error))
     # Running the parquet format converter
     print('Beginning conversion to parquet format')
     try:
         for data in split_data:
-            asyncio.run(parquetConversion(data, split_data))
+            await parquetConversion(data, split_data)
         print('Parquet formatting passed')
     except Exception as error:
-        print('Parquet formatting failed: ' + error)
+        print('Parquet formatting failed: ' + str(error))
     # Running the uploadToS3 functuon
     print('Beginning file upload to AWS S3')
     try:
         for data in split_data:
-            asyncio.run(uploadToS3(data))
+            await uploadToS3(data)
         print('File upload passed')
     except Exception as error:
-        print('File upload failed: ' + error)
+        print('File upload failed: ' + str(error))
+
+if __name__ == "__main__":
+    """
+    Running if Python file is running natively 
+    """
+    asyncio.run(main())
 

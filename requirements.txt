@@ -7,3 +7,5 @@ numpy
 pyarrow
 boto3
 python-dotenv
+prefect
+pyopenssl == 24.0.0
