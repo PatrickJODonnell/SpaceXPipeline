@@ -95,7 +95,7 @@ async def parquet_conversion(data, split_data):
     """
     # Creating year folders
     if 'SpaceXPipeline' not in os.getcwd():
-        os.chdir('./BearCognition/SpaceXPipeline')
+        os.chdir('./SpaceXPipeline')
         path = f'./spacex-data/{data}'
         if not os.path.exists(path):
             os.mkdir(path)
@@ -113,7 +113,7 @@ async def upload_to_s3(data):
     """
     # Getting to the correct directory
     if 'SpaceXPipeline' not in os.getcwd():
-        os.chdir('./BearCognition/SpaceXPipeline')
+        os.chdir('./SpaceXPipeline')
     # Setting up connection to S3 client and bucket information
     s3 = boto3.resource('s3',
                         region_name = 'us-east-2',
