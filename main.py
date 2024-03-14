@@ -10,6 +10,7 @@ import pyarrow.parquet as pq
 import os
 import boto3
 from dotenv import load_dotenv
+import json
 
 # Loading environmental variables
 load_dotenv()
