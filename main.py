@@ -1,13 +1,15 @@
+"""
+Main python file for the SpaceXPipeline
+"""
 # Import statements
+import os
 import asyncio
 import aiohttp
-from pprint import pprint
 from numpy import NaN
 import pandas as pd
 from flatten_json import flatten
 import pyarrow as pa
 import pyarrow.parquet as pq
-import os
 import boto3
 from dotenv import load_dotenv
 from prefect import flow, task
@@ -16,10 +18,10 @@ from prefect import flow, task
 load_dotenv()
 
 # Initializing flattened launch list as global for manipulaton by data processor
-flat_launch_list = [] 
+flat_launch_list = []
 
 @task
-async def apiInteraction():
+async def api_interaction():
     """
     Function that fetches data from the provided API URL
     """
@@ -30,19 +32,21 @@ async def apiInteraction():
         "query": {},
         "options": {
             "select":['date_utc', 'rocket', 'payloads', 'success'],
-            "pagination": False, 
+            "pagination": False,
             "populate": ["payloads", "rocket"],
         }
     }
     # Calling SpaceX API with query options so we only pull data that we want
     async with aiohttp.ClientSession() as session:
-        async with session.post(base_url + route, headers={"Conetent-Type": "application/json"}, json = query) as response:
+        async with session.post(base_url + route,
+                                headers={"Conetent-Type": "application/json"},
+                                json = query) as response:
             raw_response = await response.json()
             return_response = raw_response['docs']
-            return(return_response)
-        
-@task      
-def dataExtraction(launch):
+            return return_response
+
+@task
+def data_extraction(launch):
     """
     Function that pulls all data from each launch that it is passed and adds it to a launch list
     """
@@ -51,7 +55,7 @@ def dataExtraction(launch):
     flat_launch_list.append(flattened_launch)
 
 @task
-def dataProcessing():
+def data_processing():
     """
     Function that will take each input of the flattened_launch_list and enter it into a pandas df.
     Will then clean data of any empty cells and convert boolean vals to more meaningful vals.
@@ -84,13 +88,13 @@ def dataProcessing():
     # Returning the dictionary of data
     return split_data
 
-@task      
-async def parquetConversion(data, split_data):
+@task
+async def parquet_conversion(data, split_data):
     """
-    Async function for converting the seperated Dataframes into seperate parquet files 
+    Async function for converting the seperated Dataframes into seperate parquet files
     """
     # Creating year folders
-    if ('SpaceXPipeline' not in os.getcwd()):
+    if 'SpaceXPipeline' not in os.getcwd():
         os.chdir('./BearCognition/SpaceXPipeline')
         path = f'./spacex-data/{data}'
         if not os.path.exists(path):
@@ -103,15 +107,15 @@ async def parquetConversion(data, split_data):
     pq.write_table(table, f'./spacex-data/{data}/launch_data_{data}.parquet')
 
 @task
-async def uploadToS3(data):
+async def upload_to_s3(data):
     """
     Function for uploading the parquet files to AWS S3
     """
     # Getting to the correct directory
-    if ('SpaceXPipeline' not in os.getcwd()):
+    if 'SpaceXPipeline' not in os.getcwd():
         os.chdir('./BearCognition/SpaceXPipeline')
     # Setting up connection to S3 client and bucket information
-    s3 = boto3.resource('s3', 
+    s3 = boto3.resource('s3',
                         region_name = 'us-east-2',
                         aws_access_key_id = os.environ.get("ACCESS_KEY_ID"),
                         aws_secret_access_key = os.environ.get("SECRET_ACCESS_KEY"))
@@ -128,7 +132,7 @@ async def main():
     # Calling the fetchData function
     print('Beginning API calls')
     try:
-        new_response = await apiInteraction()
+        new_response = await api_interaction()
         print('API call passed')
     except Exception as error:
         print('API call failed ' + str(error))
@@ -136,14 +140,14 @@ async def main():
     print('Beginning data extraction')
     try:
         for launch in new_response:
-            dataExtraction(launch)
+            data_extraction(launch)
         print('Data extraction passed')
     except Exception as error:
         print('Data extraction failed: ' + str(error))
     # Running the dataProcessesor
     print('Beginning data processing')
     try:
-        split_data = dataProcessing()
+        split_data = data_processing()
         print('Data processing passed')
     except Exception as error:
         print('Data processing failed: ' + str(error))
@@ -151,7 +155,7 @@ async def main():
     print('Beginning conversion to parquet format')
     try:
         for data in split_data:
-            await parquetConversion(data, split_data)
+            await parquet_conversion(data, split_data)
         print('Parquet formatting passed')
     except Exception as error:
         print('Parquet formatting failed: ' + str(error))
@@ -159,14 +163,10 @@ async def main():
     print('Beginning file upload to AWS S3')
     try:
         for data in split_data:
-            await uploadToS3(data)
+            await upload_to_s3(data)
         print('File upload passed')
     except Exception as error:
         print('File upload failed: ' + str(error))
 
 if __name__ == "__main__":
-    """
-    Running if Python file is running natively 
-    """
     asyncio.run(main())
-
