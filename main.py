@@ -44,7 +44,7 @@ async def apiInteraction():
 @task      
 def dataExtraction(launch):
     """
-    Function that pulls all data from each launch that it is passed as adds it to a launch list
+    Function that pulls all data from each launch that it is passed and adds it to a launch list
     """
     # Flattening JSON object and adding it to our list
     flattened_launch = flatten(launch)
@@ -53,11 +53,11 @@ def dataExtraction(launch):
 @task
 def dataProcessing():
     """
-    Function that will turn take each input of the flattened_launch_list and enter it into a pandas df.
+    Function that will take each input of the flattened_launch_list and enter it into a pandas df.
     Will then clean data of any empty cells and convert boolean vals to more meaningful vals.
     Finally, the df will be split by launch year.
     """
-    # Removing emptry lists from entries
+    # Removing empty items from entries
     for entry in flat_launch_list:
         for k in entry:
             if entry[k] == []:
