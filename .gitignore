@@ -1,0 +1,2 @@
+# ignoring env files for security
+.env
