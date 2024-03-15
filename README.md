@@ -113,16 +113,16 @@
 <ol>
     <li>Launches per Year</li>
     <p>Using the SQL query: SELECT years, Count(*) FROM xdata.finaldata GROUP BY years; the following table was generated which shows that SpaceX has been increasing their launch prequency since 2006.</p>
-    <img src="">
+    <img src="https://github.com/PatrickJODonnell/SpaceXPipeline/assets/130483105/6f3ba6b3-e1bb-4714-86a7-824c5524c56b">
     <li>Number of Successful Launches per Year</li>
     <p>Using the SQL query: SELECT years, count(success) FROM xdata.finaldata WHERE success = "true" GROUP BY years; the following table was generated. This data shows a healthy increase in launch successes from SpaceX as time progresses.</p>
-    <img src="">
+    <img src="https://github.com/PatrickJODonnell/SpaceXPipeline/assets/130483105/a3bc356e-6d09-4088-b793-d08415bca9e8">
     <li>Average Cost of a Rocket Launch per Year</li>
     <p>Using the SQL query: SELECT years, avg(rocket_cost_per_launch) FROM xdata.finaldata GROUP BY years; the following table was generated. This table illustrates how rocket launches were less expensive in the beginning of the launch data and jumped to an average of $50 million in 2010.</p>
-    <img src="">
+    <img src="https://github.com/PatrickJODonnell/SpaceXPipeline/assets/130483105/4e848c1e-0a79-49b8-ba21-bc2d393ae1c9">
     <li>Number of Launches with Payloads</li>
     <p>Using the SQL query: SELECT entry_id, years FROM xdata.finaldata WHERE payloads_0_dragon_capsule != "No Data"; the following table was generated. This table lists the launch id and year of each mission that carried a payload.</p>
-    <img src="">
+    <img src="https://github.com/PatrickJODonnell/SpaceXPipeline/assets/130483105/232adbff-da35-4ae7-9b3c-44356ec81249">
 </ol>
 </div>
 
