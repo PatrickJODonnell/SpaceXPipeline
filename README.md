@@ -39,11 +39,11 @@
     </ul>
     <li>data_extraction task</li>
     <ul>
-        <li>This task loops through each json object retrieved from the API, flattens it, and adds the flattened data to a global list for processing.</li>
+        <li>This task loops through each JSON object retrieved from the API, flattens it, and adds the flattened data to a global list for processing.</li>
     </ul>
     <li>data_processing task</li>
     <ul>
-        <li>This task first cleans the retrieved data by replacing all empty data cells, transforming the json object into a Pandas Dataframe, and removing all empty columns in the Dataframe. Next, the task calculates the year associated with each Dataframe row, and appends a 'years' column to the Dataframe. Finally, this task partitions the data into seperate Pandas Dataframes based on the associated year.</li>
+        <li>This task first cleans the retrieved data by replacing all empty data cells, transforming the JSON object into a Pandas Dataframe, and removing all empty columns in the Dataframe. Next, the task calculates the year associated with each Dataframe row, and appends a 'years' column to the Dataframe. Finally, this task partitions the data into seperate Pandas Dataframes based on the associated year.</li>
     </ul>
     <li>parquet_conversion task</li>
     <ul>
@@ -58,6 +58,12 @@
         <li>Once the data has been uploaded to S3, the AWS Glue job works with the AWS Glue Crawler to transfer the yearly data from the S3 bucket to the AWS RDS MySQL Database.</li>
     </ul>
 <ol>
+</div>
+<div>
+<h2>Data Partitioning Strategy</h2>
+<p>This section will provide an overview of the data partitioning strategy.</p>
+</br>
+<p>For this pipeline, I chose to initially store the retrieved JSON data as Pandas Dataframes. This storage option allowed for easy data cleaning and partitioning. Using a few simple commands, I was able to seperate the Dataframe of SpaceX data into seperate Dataframes and store them in a dictionary of Dataframes with their associated year as the key. This partitioning strategy allowed me to easily locate and view each piece of data. Additionally, this partitioning method allowed me to easily transfer the data from Dataframes to .parquet files using the pyarrow library. Finally, I decided to include a yearly folder structure to hold all .parquet files for more efficient data separation.</p>
 </div>
 
 
