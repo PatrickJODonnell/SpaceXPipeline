@@ -1,6 +1,6 @@
 <div>
 <h1>SpaceXPipeline</h1>
-<p>Welcome to the repository for the SpaceX Data Pipeline project for Bear Cognition! See below for operating procedures, pipeline architecture, data partitioning strategies, and a report on SpaceX data insights!</p>
+<p>Welcome to the repository for the SpaceX Data Pipeline project for Bear Cognition! See below for operating procedures, pipeline architecture, data partitioning strategies, AWS resourece setup, and a report on SpaceX data insights!</p>
 </div>
 <div>
 <h2>Operating procedures</h2>
@@ -16,7 +16,7 @@
 </ol>
 <h3>AWS</h3>
 <ol>
-    <li>Login to <a href='https://us-east-2.console.aws.amazon.com/console/home?nc2=h_ct&region=us-east-2&src=header-signin#'>Amazon AWS</a> using the credentials attached to the project submision.</li>
+    <li>Login to <a href='https://us-east-2.console.aws.amazon.com/console/home?nc2=h_ct&region=us-east-2&src=header-signin#'>Amazon AWS</a> using the credentials attached to the project submission.</li>
     <li>See the following links to view AWS entites</li>
     <ol>
         <li><a href='https://us-east-2.console.aws.amazon.com/s3/buckets/spacexpipeline?region=us-east-2&bucketType=general&tab=objects'>S3 Bucket: spacexpipeline</a></li>
@@ -32,6 +32,7 @@
 <div>
 <h2>Pipeline Architecture</h2>
 <p>This section will provide brief overviews of each element in the main flow of the ETL pipeline.</p>
+<p>NOTE: If Prefect flow runs are desired, please contact patrickjodonnell@comcast.net!</p>
 <ol>
     <li>api_interaction task</li>
     <ul>
@@ -64,6 +65,14 @@
 <p>This section will provide an overview of the data partitioning strategy.</p>
 </br>
 <p>For this pipeline, I chose to initially store the retrieved JSON data as Pandas Dataframes. This storage option allowed for easy data cleaning and partitioning. Using a few simple commands, I was able to seperate the Dataframe of SpaceX data into seperate Dataframes and store them in a dictionary of Dataframes with their associated year as the key. This partitioning strategy allowed me to easily locate and view each piece of data. Additionally, this partitioning method allowed me to easily transfer the data from Dataframes to .parquet files using the pyarrow library. Finally, I decided to include a yearly folder structure to hold all .parquet files for more efficient data separation.</p>
+</div>
+<div>
+<h2>AWS Resource Setup</h2>
+<p>This section will provide an overview of the setup of each AWS entity.</p>
+</div>
+<div>
+<h2>SpaceX Data Insights</h2>
+<p>This section will provide insights into the SpaceX Data.</p>
 </div>
 
 
